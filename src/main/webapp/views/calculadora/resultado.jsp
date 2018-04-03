@@ -1,5 +1,5 @@
-<jsp:include page="/templates/head.jsp"></jsp:include>
-<jsp:include page="/templates/navbar.jsp"></jsp:include>
+<%@include file="/templates/head.jsp"%>
+<%@include file="/templates/navbar.jsp"%>
 
 
 
@@ -13,4 +13,4 @@
 
 
 
-<jsp:include page="/templates/footer.jsp"></jsp:include>
+<%@include file="/templates/footer.jsp"%>

@@ -28,7 +28,7 @@ public class MesaController extends HttpServlet {
 			throws ServletException, IOException {
 
 		Mesa m = new Mesa();
-		MaterialDAO dao = new MaterialDAO();
+		MaterialDAO dao = MaterialDAO.getMiMaterialDAO();
 
 		// recoger parametros *** SIEMPRE String ***
 		String sPatas = request.getParameter("patas");

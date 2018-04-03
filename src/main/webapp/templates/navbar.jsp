@@ -9,7 +9,16 @@
         <a class="p-2 text-dark" href="generar-mesa">Mesa</a>        
         <a class="p-2 text-dark" href="calculadora"> Calculadora</a>     
       </nav>
-      <a class="btn btn-outline-primary" href="login">Login</a>
+      
+      
+      
+      <c:if test="${empty usuario }">
+      	<a class="btn btn-outline-primary" href="login">Login</a>
+      </c:if>
+      <c:if test="${!empty usuario }">
+      	<a class="btn btn-outline-danger" href="logout">Logout</a>
+      </c:if>
+      ${usuario}
     </div>
     
     <div class="container">
