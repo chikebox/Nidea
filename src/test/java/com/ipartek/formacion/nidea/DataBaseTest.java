@@ -46,7 +46,7 @@ public class DataBaseTest {
 	public void testMaterailDAO() {
 
 		MaterialDAO dao = MaterialDAO.getMiMaterialDAO();
-		assertNotNull(dao.getAll());
+		assertNotNull(dao.getAll(""));
 
 	}
 

@@ -25,7 +25,7 @@ public class LoginController extends HttpServlet {
 
 	private static final String USER = "admin";
 	private static final String PASS = "admin";
-	private static final int SESSION_EXPIRATION=60*1;
+	private static final int SESSION_EXPIRATION=60*15;
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
@@ -48,7 +48,6 @@ public class LoginController extends HttpServlet {
 
 			String usuario = request.getParameter("usuario");
 			String password = request.getParameter("password");
-			MaterialDAO dao = MaterialDAO.getMiMaterialDAO();
 			if (USER.equalsIgnoreCase(usuario) && PASS.equals(password)) {
 				
 				//guardar el usuario en sesion				
@@ -63,7 +62,7 @@ public class LoginController extends HttpServlet {
 				 *</session-config>
 				 */
 				session.setMaxInactiveInterval(SESSION_EXPIRATION);
-				request.setAttribute("materiales", dao.getAll());
+				
 
 				view = "backoffice/index.jsp";
 				alert = new Alert("Ongi Etorri", Alert.TIPO_PRIMARY);
