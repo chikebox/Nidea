@@ -34,7 +34,31 @@
 				<form action="backoffice/materiales" method="post">
 				<input type="hidden"  name="op" value="<%=MaterialesController.OP_BORRAR %>">
 					<input type="hidden" class="form-control" name="id" value="${ material.getId() }"placeholder="">
-					<input type="submit" style="width:100%;" class="btn btn-lg btn-danger" value="Borrar">
+					<button type="button" style="width:100%;" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#exampleModal">
+  Borrar
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">¿Eliminar material?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>¿Esta seguro de que quiere borrar el material?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <input type="submit" style="width:100%;" class="btn btn-danger" value="Borrar">
+      </div>
+    </div>
+  </div>
+</div>
+					
 				</form>
 			</c:if>
 	</div>

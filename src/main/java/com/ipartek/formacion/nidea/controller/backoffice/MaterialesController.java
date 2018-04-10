@@ -28,6 +28,7 @@ public class MaterialesController extends HttpServlet {
 	public static final int OP_MODIFICAR = 3;
 	public static final int OP_BORRAR = 4;
 	public static final int OP_ANADIR = 5;
+	public static final int PRECIO_EN_LETRA = -4876;
 	private RequestDispatcher dispatcher;
 	private Alert alert;
 	private MaterialDAO dao;
@@ -35,6 +36,7 @@ public class MaterialesController extends HttpServlet {
 	// parametros comunes
 	private String search; // para el buscador por nombre matertial
 	private int op; // operacion a realizar
+	
 	// parametros del Material
 	private int id;
 	private String nombre;
@@ -126,19 +128,66 @@ public class MaterialesController extends HttpServlet {
 	}
 
 	private void modificar(HttpServletRequest request) {
-		dao.modificarMaterial(nombre, precio,id);
-		request.setAttribute("nombre", nombre);
-		request.setAttribute("precio", precio);
-		request.setAttribute("id", id);
-		mostrarFormulario(request, OP_MODIFICAR);
-
+		if(!nombre.equals("")) {
+			if(precio==PRECIO_EN_LETRA) {
+				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
+				alert = new Alert("Ha introducido un valor que no es un número" , Alert.TIPO_WARNING);
+			}
+			else if(precio<=0) {
+				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
+				alert = new Alert("El precio debe ser mayor de 0" , Alert.TIPO_WARNING);
+			}
+			else {
+				dao.modificarMaterial(nombre, precio,id);
+				request.setAttribute("nombre", nombre);
+				request.setAttribute("precio", precio);
+				request.setAttribute("id", id);
+				mostrarFormulario(request, OP_MODIFICAR);
+			}
+		}
+		else {
+			mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
+			alert = new Alert("El nombre no puede ser vacío" , Alert.TIPO_WARNING);
+			
+		}
+	
 	}
 	private void guardar(HttpServletRequest request) {
 		Material material= new Material();
 		material.setNombre(nombre);
 		material.setPrecio(precio);
-		dao.crear(material);
-		listar(request);
+		request.setAttribute("material", material);
+			if(!nombre.equals("")) {
+				if(precio==PRECIO_EN_LETRA) {
+					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
+					alert = new Alert("Ha introducido un valor que no es un número" , Alert.TIPO_WARNING);
+				}
+				else if(precio<=0) {
+					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
+					alert = new Alert("El precio debe ser mayor de 0" , Alert.TIPO_WARNING);
+				}
+				else {
+					material.setPrecio(precio);
+					if(!dao.crear(material)) {
+				
+						material=dao.getByNombre(nombre);
+						id=material.getId();
+						mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
+						alert = new Alert("Ya existe ese material,¿quiere modificarlo?" , Alert.TIPO_WARNING);
+					}
+					else {
+						listar(request);
+					}
+				}
+			}
+			else {
+				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
+				alert = new Alert("El nombre no puede ser vacío" , Alert.TIPO_WARNING);
+				
+			}
+			
+		
+		
 
 	}
 
@@ -201,13 +250,23 @@ public class MaterialesController extends HttpServlet {
 		}
 
 		if (request.getParameter("nombre") != null) {
+			
 			nombre = request.getParameter("nombre");
+			nombre = nombre.trim();
+			nombre = nombre.substring(0, Math.min(nombre.length(), 44));
 		} else {
 			nombre = "";
 		}
 
 		if (request.getParameter("precio") != null) {
-			precio = Float.parseFloat(request.getParameter("precio"));
+			try{
+				precio = Float.parseFloat(request.getParameter("precio"));
+			
+			}
+			catch( Exception e){
+				precio=PRECIO_EN_LETRA;
+			}
+				
 		} else {
 			precio = 0;
 		}

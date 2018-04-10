@@ -36,49 +36,21 @@ public class MaterialDAO implements Persistible<Material>{
 	public ArrayList<Material> getAll(String searchText) {
 
 		ArrayList<Material> lista = new ArrayList<Material>();
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+		String sql = "SELECT id, nombre, precio FROM spoty.material WHERE nombre LIKE '%' ? '%' ORDER BY id DESC LIMIT 100;";
 
-		try {
-
-			
-			con = ConnectionManager.getConnection();
-			String sql = "SELECT id, nombre, precio FROM spoty.material WHERE nombre LIKE '%' ? '%' ORDER BY id DESC LIMIT 500;";
-
-			pst = con.prepareStatement(sql);
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
 			pst.setString(1, searchText);
-			rs = pst.executeQuery();
-
-			Material m = null;
-			while (rs.next()) {
-				m = new Material();
-				m.setId(rs.getInt("id"));
-				m.setNombre(rs.getString("nombre"));
-				m.setPrecio(rs.getFloat("precio"));
-				lista.add(m);
+			try(ResultSet rs = pst.executeQuery();){
+				while (rs.next()) {
+					lista.add(mapper(rs));
+				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-
-				if (pst != null) {
-					pst.close();
-				}
-
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		} 
+		
 
 		return lista;
 	}
@@ -86,104 +58,76 @@ public class MaterialDAO implements Persistible<Material>{
 
 		ArrayList<Material> lista = new ArrayList<Material>();
 		Material material=new Material();
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+		String sql = "SELECT id, nombre, precio FROM spoty.material WHERE id= ? ;";
+		
 
-		try {
-
-			con = ConnectionManager.getConnection();
-			String sql = "SELECT id, nombre, precio FROM spoty.material WHERE id= ? ;";
-
-			pst = con.prepareStatement(sql);
-			pst.setInt(1, id);
-			rs = pst.executeQuery();
-
-			Material m = null;
-			while (rs.next()) {
-				m = new Material();
-				m.setId(rs.getInt("id"));
-				m.setNombre(rs.getString("nombre"));
-				m.setPrecio(rs.getFloat("precio"));
-				lista.add(m);
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);) {
+				pst.setInt(1, id);
+				try(ResultSet rs = pst.executeQuery();){
+					while (rs.next()) {
+						lista.add(mapper(rs));
+				}
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-
-				if (pst != null) {
-					pst.close();
-				}
-
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		} 
 		if(!lista.isEmpty())material=lista.get(0);
 
 		return material;
 	}
-	public void crear(Material material) {
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+	public Material getByNombre(String nombre) {
 
-		try {
+		ArrayList<Material> lista = new ArrayList<Material>();
+		Material material=new Material();
+		String sql = "SELECT id, nombre, precio FROM spoty.material WHERE nombre= ? ;";
+		
 
-			
-			con = ConnectionManager.getConnection();
-			String sql = "INSERT INTO spoty.material (nombre,precio) VALUES ( ? , ? );";
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);) {
+				pst.setString(1, nombre);
+				try(ResultSet rs = pst.executeQuery();){
+					while (rs.next()) {
+						lista.add(mapper(rs));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		if(!lista.isEmpty())material=lista.get(0);
+
+		return material;
+	}
+	public boolean crear(Material material){
+				String sql = "INSERT INTO spoty.material (nombre,precio) VALUES (?, ?);";
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				
+				) {
 			System.out.println(sql);
-			pst = con.prepareStatement(sql);
 			pst.setString(1, material.getNombre());
 			pst.setFloat(2, material.getPrecio());
 			pst.execute();
+			return true;
 
 			
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-
-				if (pst != null) {
-					pst.close();
-				}
-
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+			return false;
+		} 
 		
 	}
 	public void modificarMaterial(String nombre, float precio, int id) {
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
-
-		try {
+		
+		String sql = "UPDATE spoty.material SET nombre= ? ,precio= ? WHERE id= ? ;";
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
 
 			
-			con = ConnectionManager.getConnection();
-			String sql = "UPDATE spoty.material SET nombre= ? ,precio= ? WHERE id= ? ;";
-			System.out.println(sql);
-			pst = con.prepareStatement(sql);
 			pst.setString(1, nombre);
 			pst.setFloat(2, precio);
 			pst.setInt(3, id);
@@ -193,38 +137,15 @@ public class MaterialDAO implements Persistible<Material>{
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-		} finally {
-
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-
-				if (pst != null) {
-					pst.close();
-				}
-
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		} 
 		
 	}
 	public void borrar(int id) {
-		Connection con = null;
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+		String sql = "DELETE FROM spoty.material WHERE id= ? ;";
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
 
-		try {
-
-			
-			con = ConnectionManager.getConnection();
-			String sql = "DELETE FROM spoty.material WHERE id= ? ;";
-			System.out.println(sql);
-			pst = con.prepareStatement(sql);
 			pst.setInt(1, id);
 			pst.execute();
 
@@ -232,25 +153,21 @@ public class MaterialDAO implements Persistible<Material>{
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-
-				if (pst != null) {
-					pst.close();
-				}
-
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 		
 	}
+	@Override
+	public Material mapper(ResultSet rs) throws SQLException {
+		Material m=null;
+		if(rs!=null) {
+			m = new Material();
+			m.setId(rs.getInt("id"));
+			m.setNombre(rs.getString("nombre"));
+			m.setPrecio(rs.getFloat("precio"));
+		}
+		return m;
+		
+	}
+	
 
 }

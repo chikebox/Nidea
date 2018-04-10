@@ -8,15 +8,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BackOffice</title>
+    <title>DataTables</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/r/bs-3.3.5/jq-2.1.4,dt-1.10.8/datatables.min.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	
-
-    
-    <link rel="stylesheet" href="css/custom.css">
     <script>
         $(document).ready(function() {
             $('#example').DataTable({
@@ -98,12 +93,13 @@
         			<c:choose>
         				 <c:when test = "${(material.precio >=6) && (material.precio <25)}">
         				 	<tr>
-        				 		<input type=hidden name="id" value="${material.id}">
+        				 		
                 				<td style=color:blue>${material.id}</td>
                 				<td style=color:blue>${material.nombre} </td>
                 				<td style=color:blue>${material.precio}</td>
                 				<td>
                 					<form action="backoffice/materiales" method="GET">
+                						<input type=hidden name="id" value="${material.id}">
                 						<input type="hidden" name="op" value="<%= MaterialesController.OP_MOSTRAR_FORMULARIO_MODIFICAR %>">
                 						<input type=hidden name="id" value="${material.id}">
                 						<input type="submit" value="Modificar/Borrar">
