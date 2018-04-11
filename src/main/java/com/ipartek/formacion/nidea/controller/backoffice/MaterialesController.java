@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ipartek.formacion.nidea.ejemplos.Utilidades;
 import com.ipartek.formacion.nidea.model.MaterialDAO;
 import com.ipartek.formacion.nidea.pojo.Alert;
 import com.ipartek.formacion.nidea.pojo.Material;
@@ -252,7 +253,7 @@ public class MaterialesController extends HttpServlet {
 		if (request.getParameter("nombre") != null) {
 			
 			nombre = request.getParameter("nombre");
-			nombre = nombre.trim();
+			nombre = Utilidades.limpiarEspacios(nombre);
 			nombre = nombre.substring(0, Math.min(nombre.length(), 44));
 		} else {
 			nombre = "";
@@ -261,7 +262,6 @@ public class MaterialesController extends HttpServlet {
 		if (request.getParameter("precio") != null) {
 			try{
 				precio = Float.parseFloat(request.getParameter("precio"));
-			
 			}
 			catch( Exception e){
 				precio=PRECIO_EN_LETRA;
