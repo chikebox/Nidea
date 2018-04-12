@@ -1,7 +1,9 @@
 package com.ipartek.formacion.nidea.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -62,7 +64,9 @@ public class LoginController extends HttpServlet {
 				 *</session-config>
 				 */
 				session.setMaxInactiveInterval(SESSION_EXPIRATION);
-				
+				ServletContext context = request.getServletContext();
+				HashMap<Integer, String> usuarios=(HashMap<Integer, String>) context.getAttribute("usuarios_conectados");
+				request.setAttribute("usuarios", usuarios);
 
 				view = "backoffice/index.jsp";
 				alert = new Alert("Ongi Etorri", Alert.TIPO_PRIMARY);
