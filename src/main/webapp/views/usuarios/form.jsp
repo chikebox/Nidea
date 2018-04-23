@@ -1,17 +1,14 @@
-<%@page import="com.ipartek.formacion.nidea.controller.backoffice.MaterialesController"%>
+<%@page import="com.ipartek.formacion.nidea.controller.frontoffice.MaterialesController"%>
 <%@include file="/templates/head.jsp"%>
 <%@include file="/templates/alert.jsp" %>
 
 <input type="hidden" name="op" value="0">
 	<div class="col-xs-12 col-sm-4"></div>
 	<div class="col-xs-12 col-sm-6">
-		<a class="btn" href="backoffice/materiales">Volver</a>
-		<form action="backoffice/materiales" method="post">
-			<div class="form-group">
+		<a class="btn" href="frontoffice/materiales">Volver</a>
+		<form action="frontoffice/materiales" method="post">
 				<input type="hidden" class="form-control" name="id" value="${ material.getId() }">
-    			
-    			<input type="text" disabled class="form-control" name="id" value="${ material.getId() }"placeholder="">
-  			</div>
+
 			<div class="form-group">
     			<label for="nombre">Nombre:</label>
 	    		<input type="text" class="form-control" name="nombre" value="${ material.getNombre() }">
@@ -19,16 +16,6 @@
   			<div class="form-group">
     			<label for="precio">Precio:</label>
     			<input type="text" class="form-control" name="precio" value="${ material.getPrecio() }">
-  			</div> 
-  			<div class="form-group">
-  				<select class="form-control"  name="usuario">
-  				<c:if test="${ (op==1) }">
-  					<option value="${material.getUsuario().getId()}" selected>${material.getUsuario().getNombre()}</option>
-    			</c:if>
-    			<c:forEach items="${usuarios}" var="usuario">
-            			<option value=${usuario.getId() } ${(usuario.id==material.usuario.id)?"selected":""}>${usuario.getNombre() }</option>
-    			</c:forEach>
-				</select>
   			</div> 
   			<c:if test="${ (op==1) }">
   				<input type="hidden" name="op" value="<%=MaterialesController.OP_ANADIR %>">
@@ -41,7 +28,7 @@
   			</c:if>
 		</form>
 			<c:if test="${ (op==2) }">
-				<form action="backoffice/materiales" method="post">
+				<form action="frontoffice/materiales" method="post">
 				<input type="hidden"  name="op" value="<%=MaterialesController.OP_BORRAR %>">
 					<input type="hidden" class="form-control" name="id" value="${ material.getId() }"placeholder="">
 					<button type="button" style="width:100%;" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#exampleModal">

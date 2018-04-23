@@ -26,15 +26,15 @@ import com.ipartek.formacion.nidea.pojo.Usuario;
 				DispatcherType.INCLUDE, 
 				DispatcherType.ERROR
 		}
-					, description = "Filter para dejar pasar sólo a usuarios registrados", urlPatterns = { "/backoffice/*" })
-public class BackofficeFilter implements Filter {
+					, description = "Filter para dejar pasar sólo a usuarios registrados", urlPatterns = { "/frontoffice/*" })
+public class FrontofficeFilter implements Filter {
 
 
 	/**
 	 * @see Filter#destroy()
 	 */
 	public void destroy() {
-		System.out.println("BackOfficeFilter destroy");
+		System.out.println("FrontofficeFilter destroy");
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class BackofficeFilter implements Filter {
 		HttpSession session = req.getSession();
 		Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-		if (null != usuario && usuario.getRol().getId()==1) {
+		if (null != usuario) {
 			chain.doFilter(request, response);
 		} else {
 			informacionPeticion(req);
@@ -95,3 +95,4 @@ public class BackofficeFilter implements Filter {
 	}
 
 }
+

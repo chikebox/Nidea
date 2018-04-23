@@ -1,4 +1,4 @@
-package com.ipartek.formacion.nidea.controller.backoffice;
+package com.ipartek.formacion.nidea.controller.frontoffice;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import com.ipartek.formacion.nidea.pojo.Usuario;;
 /**
  * Servlet implementation class MaterialesController
  */
-@WebServlet("/backoffice/materiales")
+@WebServlet("/frontoffice/materiales")
 public class MaterialesController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String VIEW_INDEX = "materiales/index.jsp";
-	private static final String VIEW_FORM = "materiales/form.jsp";
+	private static final String VIEW_INDEX = "/views/usuarios/materiales.jsp";
+	private static final String VIEW_FORM = "/views/usuarios/form.jsp";
 	public static final int OP_MOSTRAR_FORMULARIO_ANADIR = 1;
 	public static final int OP_MOSTRAR_FORMULARIO_MODIFICAR = 2;
 	public static final int OP_MODIFICAR = 3;
@@ -192,8 +192,17 @@ public class MaterialesController extends HttpServlet {
 				
 							material=daoMaterial.getByNombre(nombre);
 							id=material.getId();
+							int id_usuario=material.getUsuario().getId();
+							int id_sesion=usuario.getId();
+							if(id_usuario!=id_sesion) {
+								listar(request);
+								alert = new Alert("Ese material es de otro usuario" , Alert.TIPO_WARNING);
+							}
+							else {
 							mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
+							
 							alert = new Alert("Ya existe ese material,¿quiere modificarlo?" , Alert.TIPO_WARNING);
+							}
 						}
 						else {
 							listar(request);
@@ -242,11 +251,12 @@ public class MaterialesController extends HttpServlet {
 
 		ArrayList<Material> materiales = new ArrayList<Material>();
 		String searchText=request.getParameter("search");
+		usuario=(Usuario) request.getSession().getAttribute("usuario");
 		if(searchText==null) {
 			searchText="";
 		}
 		
-		materiales = daoMaterial.getAll(searchText);
+		materiales = daoMaterial.getAllByUsuario(usuario,searchText);
 		
 		request.setAttribute("materiales", materiales);
 		dispatcher = request.getRequestDispatcher(VIEW_INDEX);
@@ -293,12 +303,7 @@ public class MaterialesController extends HttpServlet {
 		} else {
 			precio = 0;
 		}
-		if(request.getParameter("usuario")!=null) {
-			usuario=daoUsuario.getById(Integer.parseInt(request.getParameter("usuario")));
-		}
-		else {
-			usuario=new Usuario();
-		}
+		usuario=(Usuario) request.getSession().getAttribute("usuario");
 	}
 
 }

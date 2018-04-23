@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.ipartek.formacion.nidea.pojo.Material;
+import com.ipartek.formacion.nidea.pojo.Usuario;
 
 public class MaterialDAO implements Persistible<Material>{
 	private static MaterialDAO miMaterialDAO=null;
@@ -36,7 +37,7 @@ public class MaterialDAO implements Persistible<Material>{
 	public ArrayList<Material> getAll(String searchText) {
 
 		ArrayList<Material> lista = new ArrayList<Material>();
-		String sql = "SELECT id, nombre, precio FROM spoty.material WHERE nombre LIKE '%' ? '%' ORDER BY id DESC LIMIT 100;";
+		String sql = "SELECT m.id, m.nombre, m.precio, u.nombre, u.id FROM nidea.material as m INNER JOIN nidea.usuario as u ON m.id_usuario=u.id WHERE m.nombre LIKE '%' ? '%' ORDER BY m.id DESC LIMIT 100;";
 
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
@@ -58,7 +59,7 @@ public class MaterialDAO implements Persistible<Material>{
 
 		ArrayList<Material> lista = new ArrayList<Material>();
 		Material material=new Material();
-		String sql = "SELECT id, nombre, precio FROM spoty.material WHERE id= ? ;";
+		String sql = "SELECT m.id, m.nombre, m.precio, u.nombre, u.id FROM nidea.material as m INNER JOIN nidea.usuario as u ON m.id_usuario=u.id WHERE m.id= ? ;";
 		
 
 		try (Connection con=ConnectionManager.getConnection();
@@ -81,7 +82,7 @@ public class MaterialDAO implements Persistible<Material>{
 
 		ArrayList<Material> lista = new ArrayList<Material>();
 		Material material=new Material();
-		String sql = "SELECT id, nombre, precio FROM spoty.material WHERE nombre= ? ;";
+		String sql = "SELECT m.id, m.nombre, m.precio, u.nombre, u.id FROM nidea.material as m INNER JOIN nidea.usuario as u ON m.id_usuario=u.id WHERE m.nombre= ? ;";
 		
 
 		try (Connection con=ConnectionManager.getConnection();
@@ -101,7 +102,7 @@ public class MaterialDAO implements Persistible<Material>{
 		return material;
 	}
 	public boolean crear(Material material){
-				String sql = "INSERT INTO spoty.material (nombre,precio) VALUES (?, ?);";
+				String sql = "INSERT INTO nidea.material (nombre,precio,id_usuario) VALUES (?, ?, ?);";
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				
@@ -109,6 +110,7 @@ public class MaterialDAO implements Persistible<Material>{
 			System.out.println(sql);
 			pst.setString(1, material.getNombre());
 			pst.setFloat(2, material.getPrecio());
+			pst.setInt(3, material.getUsuario().getId());
 			pst.execute();
 			return true;
 
@@ -120,9 +122,9 @@ public class MaterialDAO implements Persistible<Material>{
 		} 
 		
 	}
-	public void modificarMaterial(String nombre, float precio, int id) {
+	public void modificarMaterial(String nombre, float precio, int id, int idUsuario) {
 		
-		String sql = "UPDATE spoty.material SET nombre= ? ,precio= ? WHERE id= ? ;";
+		String sql = "UPDATE nidea.material SET nombre= ? ,precio= ?, id_usuario= ? WHERE id= ? ;";
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				) {
@@ -130,7 +132,8 @@ public class MaterialDAO implements Persistible<Material>{
 			
 			pst.setString(1, nombre);
 			pst.setFloat(2, precio);
-			pst.setInt(3, id);
+			pst.setInt(3, idUsuario);
+			pst.setInt(4, id);
 			pst.executeUpdate();
 
 			
@@ -141,7 +144,7 @@ public class MaterialDAO implements Persistible<Material>{
 		
 	}
 	public void borrar(int id) {
-		String sql = "DELETE FROM spoty.material WHERE id= ? ;";
+		String sql = "DELETE FROM nidea.material WHERE id= ? ;";
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				) {
@@ -161,12 +164,37 @@ public class MaterialDAO implements Persistible<Material>{
 		Material m=null;
 		if(rs!=null) {
 			m = new Material();
-			m.setId(rs.getInt("id"));
-			m.setNombre(rs.getString("nombre"));
-			m.setPrecio(rs.getFloat("precio"));
+			m.setId(rs.getInt("m.id"));
+			m.setNombre(rs.getString("m.nombre"));
+			m.setPrecio(rs.getFloat("m.precio"));
+			Usuario u= new Usuario();
+			u.setId(rs.getInt("u.id"));
+			u.setNombre(rs.getString("u.nombre"));
+			m.setUsuario(u);
 		}
 		return m;
 		
+	}
+	public ArrayList<Material> getAllByUsuario(Usuario usuario, String searchText) {
+		ArrayList<Material> lista = new ArrayList<Material>();
+		String sql = "SELECT m.id, m.nombre, m.precio, u.nombre, u.id FROM nidea.material as m INNER JOIN nidea.usuario as u ON m.id_usuario=u.id WHERE m.nombre LIKE '%' ? '%' AND m.id_usuario= ? ORDER BY m.id DESC LIMIT 100;";
+
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
+			pst.setString(1, searchText);
+			pst.setInt(2, usuario.getId());
+			try(ResultSet rs = pst.executeQuery();){
+				while (rs.next()) {
+					lista.add(mapper(rs));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+
+		return lista;
 	}
 	
 

@@ -1,7 +1,6 @@
-<%@page import="com.ipartek.formacion.nidea.controller.backoffice.MaterialesController"%>
-<%@page import="com.ipartek.formacion.nidea.controller.MaterialesControler"%>
-<%@page import="com.ipartek.formacion.nidea.pojo.Material"%>
-<%@page import="com.ipartek.formacion.nidea.model.MaterialDAO"%>
+<%@page import="com.ipartek.formacion.nidea.controller.backoffice.RolesController"%>
+<%@page import="com.ipartek.formacion.nidea.pojo.Rol"%>
+<%@page import="com.ipartek.formacion.nidea.model.RolDAO"%>
 
 <%@page import="java.util.ArrayList"%>
 <%@include file="/templates/head.jsp"%>
@@ -55,14 +54,14 @@
 	
 	</c:if>
 	<div class="col-xs-12 col-sm-4">
-		<form action="backoffice/materiales"method="POST">
-			<input type="hidden" name="op" value="<%= MaterialesController.OP_MOSTRAR_FORMULARIO_ANADIR %>">
-			<input class="btn btn-primary"type="submit" value="Añadir nuevo material">
+		<form action="backoffice/roles"method="POST">
+			<input type="hidden" name="op" value="<%= RolesController.OP_MOSTRAR_FORMULARIO_ANADIR %>">
+			<input class="btn btn-primary"type="submit" value="Añadir nuevo rol">
 		</form>
 	</div>
 	<div class="col-xs-12 col-sm-4"></div>
 	<div class="col-xs-12 col-sm-4">
-		<form id="busqueda"action="backoffice/materiales" method="get">
+		<form id="busqueda"action="backoffice/roles" method="get">
 			<div class="input-group">
   				<input class="form-control" name="search" placeholder="Buscar por nombre">
   				 <div class="input-group-addon" onclick="document.getElementById('busqueda').submit()" style="width:50px;" ><i class="fa fa-search"></i></div>
@@ -73,11 +72,9 @@
 		<div class="col-xs-12">
 			<table id="example" class="table table-striped table-bordered" style="width:100%">
         		<thead>
-           			<tr>
+           				<tr>
                 		<th>Id</th>
                 		<th>Nombre</th>
-                		<th>Precio</th>
-                		<th>Creador</th>
                 		<th></th>
             		</tr>
         		</thead>
@@ -85,68 +82,28 @@
             		<tr>
                 		<th>Id</th>
                 		<th>Nombre</th>
-                		<th>Precio</th>
-                		<th>Creador</th>
                 		<th></th>
             		</tr>
         		</tfoot>
         		<tbody>
-        			<c:forEach items="${materiales}" var="material">
-        			<c:choose>
-        				 <c:when test = "${(material.precio >=6) && (material.precio <25)}">
+        			<c:forEach items="${roles}" var="rol">
+        			
         				 	<tr>
         				 		
-                				<td style=color:blue>${material.id}</td>
-                				<td style=color:blue>${material.nombre} </td>
-                				<td style=color:blue>${material.precio}</td>
-                				<td style=color:blue>${material.getUsuario().getNombre()}</td>
+                				<td>${rol.id}</td>
+                				<td>${rol.nombre} </td>
                 				<td>
-                					<form action="backoffice/materiales" method="GET">
-                						<input type=hidden name="id" value="${material.id}">
-                						<input type="hidden" name="op" value="<%= MaterialesController.OP_MOSTRAR_FORMULARIO_MODIFICAR %>">
-                						<input type=hidden name="id" value="${material.id}">
+                					<form action="backoffice/roles" method="GET">
+                						<input type=hidden name="id" value="${rol.id}">
+                						<input type="hidden" name="op" value="<%= RolesController.OP_MOSTRAR_FORMULARIO_MODIFICAR %>">
+                						<input type=hidden name="id" value="${rol.id}">
                 						<input type="submit" value="Modificar/Borrar">
                 					</form>
                 				<td>
                 			</tr>
-        				 </c:when>
-        				 <c:when test="${material.precio >=25 }">
-							<tr>
-								
-                				<td style=color:red>${material.id}</td>
-                				<td style=color:red>${material.nombre} </td>
-                				<td style=color:red>${material.precio}</td>
-                				<td style=color:red>${material.getUsuario().getNombre()}</td>
-                				<td>
-                					<form action="backoffice/materiales" method="GET">
-                						<input type="hidden" name="op" value="<%= MaterialesController.OP_MOSTRAR_FORMULARIO_MODIFICAR %>">
-                						<input type=hidden name="id" value="${material.id}">
-                						<input type="submit" value="Modificar/Borrar">
-                					</form>
-                				<td>
-                			</tr>
-                		</c:when>
-                		<c:when test="${material.precio < 6}">
-                			<tr>
-                				<td>${material.id}</td>
-                				<td>${material.nombre} </td>
-                				<td>${material.precio}</td>
-                				<td>${material.getUsuario().getNombre()}</td>
-                				<td>
-                					<form action="backoffice/materiales" method="GET">
-                						<input type="hidden" name="op" value="<%= MaterialesController.OP_MOSTRAR_FORMULARIO_MODIFICAR %>">
-                						<input type=hidden name="id" value="${material.id}">
-                						<input type="submit" value="Modificar/Borrar">
-                					</form>
-                				<td>
-                				
-                				
-                			</tr>
-                		</c:when>
-        			</c:choose>
+
         				
-						
-                		
+							
                 	</c:forEach>
         		</tbody>
         

@@ -12,20 +12,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ipartek.formacion.nidea.ejemplos.Utilidades;
-import com.ipartek.formacion.nidea.model.MaterialDAO;
-import com.ipartek.formacion.nidea.model.UsuarioDAO;
+
+import com.ipartek.formacion.nidea.model.RolDAO;
 import com.ipartek.formacion.nidea.pojo.Alert;
-import com.ipartek.formacion.nidea.pojo.Material;
-import com.ipartek.formacion.nidea.pojo.Usuario;;
+
+import com.ipartek.formacion.nidea.pojo.Rol;
 
 /**
- * Servlet implementation class MaterialesController
+ * Servlet implementation class RolesController
  */
-@WebServlet("/backoffice/materiales")
-public class MaterialesController extends HttpServlet {
+@WebServlet("/backoffice/roles")
+public class RolesController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String VIEW_INDEX = "materiales/index.jsp";
-	private static final String VIEW_FORM = "materiales/form.jsp";
+	private static final String VIEW_INDEX = "roles/index.jsp";
+	private static final String VIEW_FORM = "roles/form.jsp";
 	public static final int OP_MOSTRAR_FORMULARIO_ANADIR = 1;
 	public static final int OP_MOSTRAR_FORMULARIO_MODIFICAR = 2;
 	public static final int OP_MODIFICAR = 3;
@@ -34,8 +34,7 @@ public class MaterialesController extends HttpServlet {
 	public static final int PRECIO_EN_LETRA = -4876;
 	private RequestDispatcher dispatcher;
 	private Alert alert;
-	private MaterialDAO daoMaterial;
-	private UsuarioDAO daoUsuario;
+	private RolDAO dao;
 
 	// parametros comunes
 	private String search; // para el buscador por nombre matertial
@@ -44,29 +43,25 @@ public class MaterialesController extends HttpServlet {
 	// parametros del Material
 	private int id;
 	private String nombre;
-	private float precio;
-	private Usuario usuario;
 
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public MaterialesController() {
+    public RolesController() {
         super();
         // TODO Auto-generated constructor stub
     }
     @Override
     public void init(ServletConfig config)throws ServletException {
     	super.init(config);
-    	daoMaterial = MaterialDAO.getMiMaterialDAO();
-    	daoUsuario = UsuarioDAO.getUsuarioDAO();
+    	dao = RolDAO.getRolDAO();
     }
     @Override
     public void destroy() {
     	// TODO Auto-generated method stub
-    	daoMaterial=null;
-    	daoUsuario=null;
+    	dao=null;
     	super.destroy();
     }
     @Override
@@ -136,28 +131,11 @@ public class MaterialesController extends HttpServlet {
 
 	private void modificar(HttpServletRequest request) {
 		if(!nombre.equals("")) {
-			if(precio==PRECIO_EN_LETRA) {
-				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
-				alert = new Alert("Ha introducido un valor que no es un número" , Alert.TIPO_WARNING);
-			}
-			else if(precio<=0) {
-				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
-				alert = new Alert("El precio debe ser mayor de 0" , Alert.TIPO_WARNING);
-			}
-			else {
-				if(usuario.getId()==-1) {
-					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-					alert = new Alert("Debe seleccionar un usuario para crear" , Alert.TIPO_WARNING);
-				}
-				else {
-					daoMaterial.modificarMaterial(nombre, precio,id,usuario.getId());
-					request.setAttribute("nombre", nombre);
-					request.setAttribute("precio", precio);
-					request.setAttribute("id", id);
-					mostrarFormulario(request, OP_MODIFICAR);
-				}
-				
-			}
+			
+				dao.modificarRol(id, nombre);
+				request.setAttribute("nombre", nombre);
+				request.setAttribute("id", id);
+				mostrarFormulario(request, OP_MODIFICAR);
 		}
 		else {
 			mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
@@ -167,39 +145,22 @@ public class MaterialesController extends HttpServlet {
 	
 	}
 	private void guardar(HttpServletRequest request) {
-		Material material= new Material();
-		request.setAttribute("material", material);
+		Rol rol= new Rol();
+		rol.setNombre(nombre);
+		
+		request.setAttribute("rol", rol);
 			if(!nombre.equals("")) {
-				if(precio==PRECIO_EN_LETRA) {
-					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-					alert = new Alert("Ha introducido un valor que no es un número" , Alert.TIPO_WARNING);
-				}
-				else if(precio<=0) {
-					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-					alert = new Alert("El precio debe ser mayor de 0" , Alert.TIPO_WARNING);
-				}
-				else {
-					material.setPrecio(precio);
-					if(usuario.getId()==-1) {
-						mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-						alert = new Alert("Debe seleccionar un usuario para crear" , Alert.TIPO_WARNING);
+					if(!dao.crear(rol)) {
+				
+						rol=dao.getByNombre(nombre);
+						id=rol.getId();
+						mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
+						alert = new Alert("Ya existe ese Rol,¿quiere modificarlo?" , Alert.TIPO_WARNING);
 					}
 					else {
-						material.setNombre(nombre);
-						material.setPrecio(precio);
-						material.setUsuario(usuario);
-						if(!daoMaterial.crear(material)) {
-				
-							material=daoMaterial.getByNombre(nombre);
-							id=material.getId();
-							mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
-							alert = new Alert("Ya existe ese material,¿quiere modificarlo?" , Alert.TIPO_WARNING);
-						}
-						else {
-							listar(request);
-						}
+						listar(request);
 					}
-				}
+				
 			}
 			else {
 				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
@@ -214,41 +175,38 @@ public class MaterialesController extends HttpServlet {
 
 
 	private void eliminar(HttpServletRequest request) {
-		daoMaterial.borrar(id);
+		dao.borrar(id);
 		listar(request);
 
 	}
 
 	private void mostrarFormulario(HttpServletRequest request, int op) {
 		
-		Material material = new Material();
-		ArrayList<Usuario> usuarios=new ArrayList<Usuario>();
+		Rol rol = new Rol();
 		if (id > -1) {
 			// TODO recuperar de la BBDD que es un material que existe
 			alert = new Alert("Mostramos Detall id:" + id, Alert.TIPO_WARNING);
-			material=daoMaterial.getById(id);
+			rol=dao.getById(id);
 
 		} else {
 			alert = new Alert("Nuevo Producto", Alert.TIPO_WARNING);
 		}
-		usuarios=daoUsuario.getAll();
 		request.setAttribute("op", op);
-		request.setAttribute("usuarios", usuarios);
-		request.setAttribute("material", material);
+		request.setAttribute("rol", rol);
 		dispatcher = request.getRequestDispatcher(VIEW_FORM);
 	}
 
 	private void listar(HttpServletRequest request) {
 
-		ArrayList<Material> materiales = new ArrayList<Material>();
+		ArrayList<Rol> roles = new ArrayList<Rol>();
 		String searchText=request.getParameter("search");
 		if(searchText==null) {
 			searchText="";
 		}
 		
-		materiales = daoMaterial.getAll(searchText);
+		roles = dao.getAll(searchText);
 		
-		request.setAttribute("materiales", materiales);
+		request.setAttribute("roles", roles);
 		dispatcher = request.getRequestDispatcher(VIEW_INDEX);
 
 	}
@@ -264,7 +222,7 @@ public class MaterialesController extends HttpServlet {
 		} else {
 			op = 0;
 		}
-		
+
 		search = (request.getParameter("search") != null) ? request.getParameter("search") : "";
 
 		if (request.getParameter("id") != null) {
@@ -282,23 +240,6 @@ public class MaterialesController extends HttpServlet {
 			nombre = "";
 		}
 
-		if (request.getParameter("precio") != null) {
-			try{
-				precio = Float.parseFloat(request.getParameter("precio"));
-			}
-			catch( Exception e){
-				precio=PRECIO_EN_LETRA;
-			}
-				
-		} else {
-			precio = 0;
-		}
-		if(request.getParameter("usuario")!=null) {
-			usuario=daoUsuario.getById(Integer.parseInt(request.getParameter("usuario")));
-		}
-		else {
-			usuario=new Usuario();
-		}
-	}
 
+	}
 }
