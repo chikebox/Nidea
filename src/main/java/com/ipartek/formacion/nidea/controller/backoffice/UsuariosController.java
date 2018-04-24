@@ -1,4 +1,4 @@
-package com.ipartek.formacion.nidea.controller.frontoffice;
+package com.ipartek.formacion.nidea.controller.backoffice;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,19 +13,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ipartek.formacion.nidea.ejemplos.Utilidades;
 import com.ipartek.formacion.nidea.model.MaterialDAO;
+import com.ipartek.formacion.nidea.model.RolDAO;
 import com.ipartek.formacion.nidea.model.UsuarioDAO;
 import com.ipartek.formacion.nidea.pojo.Alert;
 import com.ipartek.formacion.nidea.pojo.Material;
-import com.ipartek.formacion.nidea.pojo.Usuario;;
+import com.ipartek.formacion.nidea.pojo.Rol;
+import com.ipartek.formacion.nidea.pojo.Usuario;
 
 /**
- * Servlet implementation class MaterialesController
+ * Servlet implementation class UsuariosController
  */
-@WebServlet("/frontoffice/materiales")
-public class MaterialesController extends HttpServlet {
+@WebServlet("/backoffice/usuarios")
+public class UsuariosController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String VIEW_INDEX = "/views/usuarios/materiales.jsp";
-	private static final String VIEW_FORM = "/views/usuarios/form.jsp";
+	private static final String VIEW_INDEX = "usuarios/index.jsp";
+	private static final String VIEW_FORM = "usuarios/form.jsp";
 	public static final int OP_MOSTRAR_FORMULARIO_ANADIR = 1;
 	public static final int OP_MOSTRAR_FORMULARIO_MODIFICAR = 2;
 	public static final int OP_MODIFICAR = 3;
@@ -34,39 +36,40 @@ public class MaterialesController extends HttpServlet {
 	public static final int PRECIO_EN_LETRA = -4876;
 	private RequestDispatcher dispatcher;
 	private Alert alert;
-	private MaterialDAO daoMaterial;
 	private UsuarioDAO daoUsuario;
+	private RolDAO daoRol;
 
 	// parametros comunes
 	private String search; // para el buscador por nombre matertial
 	private int op; // operacion a realizar
 	
-	// parametros del Material
+	// parametros del Usuario
 	private int id;
 	private String nombre;
-	private float precio;
-	private Usuario usuario;
+	private String password;
+	private Rol rol;
 
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public MaterialesController() {
+    public UsuariosController() {
         super();
         // TODO Auto-generated constructor stub
     }
     @Override
     public void init(ServletConfig config)throws ServletException {
     	super.init(config);
-    	daoMaterial = MaterialDAO.getMiMaterialDAO();
     	daoUsuario = UsuarioDAO.getUsuarioDAO();
+    	daoRol=RolDAO.getRolDAO();
     }
     @Override
     public void destroy() {
     	// TODO Auto-generated method stub
-    	daoMaterial=null;
+
     	daoUsuario=null;
+    	daoRol=null;
     	super.destroy();
     }
     @Override
@@ -136,24 +139,26 @@ public class MaterialesController extends HttpServlet {
 
 	private void modificar(HttpServletRequest request) {
 		if(!nombre.equals("")) {
-			if(precio==PRECIO_EN_LETRA) {
+			if(password.equals("")) {
 				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
-				alert = new Alert("Ha introducido un valor que no es un número" , Alert.TIPO_WARNING);
+				alert = new Alert("La password no puede ser vacía" , Alert.TIPO_WARNING);
 			}
-			else if(precio<=0) {
+			else if(password.equals("Las passwords no coinciden, deben coincidir para poder crear el usuario")) {
 				mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
-				alert = new Alert("El precio debe ser mayor de 0" , Alert.TIPO_WARNING);
+				alert = new Alert(password , Alert.TIPO_WARNING);
 			}
 			else {
-				if(usuario.getId()==-1) {
+				if(rol.getId()==-1) {
 					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-					alert = new Alert("Debe seleccionar un usuario para crear" , Alert.TIPO_WARNING);
+					alert = new Alert("Debe seleccionar un rol para crear" , Alert.TIPO_WARNING);
 				}
 				else {
-					daoMaterial.modificarMaterial(nombre, precio,id,usuario.getId());
+					daoUsuario.modificarUsuario(id, nombre, password,rol.getId());
+					
 					request.setAttribute("nombre", nombre);
-					request.setAttribute("precio", precio);
+					request.setAttribute("password", password);
 					request.setAttribute("id", id);
+					
 					mostrarFormulario(request, OP_MODIFICAR);
 				}
 				
@@ -167,42 +172,33 @@ public class MaterialesController extends HttpServlet {
 	
 	}
 	private void guardar(HttpServletRequest request) {
-		Material material= new Material();
-		request.setAttribute("material", material);
+		Usuario usuario= new Usuario();
+		request.setAttribute("usario", usuario);
 			if(!nombre.equals("")) {
-				if(precio==PRECIO_EN_LETRA) {
+				if(password.equals("")) {
 					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-					alert = new Alert("Ha introducido un valor que no es un número" , Alert.TIPO_WARNING);
+					alert = new Alert("La password no puede ser vacía" , Alert.TIPO_WARNING);
 				}
-				else if(precio<=0) {
+				else if(password.equals("Las passwords no coinciden, deben coincidir para poder crear el usuario")) {
 					mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
-					alert = new Alert("El precio debe ser mayor de 0" , Alert.TIPO_WARNING);
+					alert = new Alert(password , Alert.TIPO_WARNING);
 				}
 				else {
-					material.setPrecio(precio);
-					if(usuario.getId()==-1) {
+					usuario.setPassword(password);
+					if(rol.getId()==-1) {
 						mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_ANADIR);
 						alert = new Alert("Debe seleccionar un usuario para crear" , Alert.TIPO_WARNING);
 					}
 					else {
-						material.setNombre(nombre);
-						material.setPrecio(precio);
-						material.setUsuario(usuario);
-						if(!daoMaterial.crear(material)) {
+						usuario.setNombre(nombre);
+						
+						usuario.setRol(rol);
+						if(!daoUsuario.crear(usuario)) {
 				
-							material=daoMaterial.getByNombre(nombre);
-							id=material.getId();
-							int id_usuario=material.getUsuario().getId();
-							int id_sesion=usuario.getId();
-							if(id_usuario!=id_sesion) {
-								listar(request);
-								alert = new Alert("Ese material es de otro usuario" , Alert.TIPO_WARNING);
-							}
-							else {
+							usuario=daoUsuario.getUsuario(nombre, password);
+							id=usuario.getId();
 							mostrarFormulario(request, OP_MOSTRAR_FORMULARIO_MODIFICAR);
-							
-							alert = new Alert("Ya existe ese material,¿quiere modificarlo?" , Alert.TIPO_WARNING);
-							}
+							alert = new Alert("Ya existe ese usuario,¿quiere modificarlo?" , Alert.TIPO_WARNING);
 						}
 						else {
 							listar(request);
@@ -223,42 +219,41 @@ public class MaterialesController extends HttpServlet {
 
 
 	private void eliminar(HttpServletRequest request) {
-		daoMaterial.borrar(id,usuario.getId());
+		daoUsuario.borrar(id);
 		listar(request);
 
 	}
 
 	private void mostrarFormulario(HttpServletRequest request, int op) {
 		
-		Material material = new Material();
-		ArrayList<Usuario> usuarios=new ArrayList<Usuario>();
+		Usuario usuario = new Usuario();
+		ArrayList<Rol> roles=new ArrayList<Rol>();
 		if (id > -1) {
 			// TODO recuperar de la BBDD que es un material que existe
 			alert = new Alert("Mostramos Detall id:" + id, Alert.TIPO_WARNING);
-			material=daoMaterial.getById(id);
+			usuario=daoUsuario.getById(id);
 
 		} else {
 			alert = new Alert("Nuevo Producto", Alert.TIPO_WARNING);
 		}
-		usuarios=daoUsuario.getAll();
+		roles=daoRol.getAll();
 		request.setAttribute("op", op);
-		request.setAttribute("usuarios", usuarios);
-		request.setAttribute("material", material);
+		request.setAttribute("usuario", usuario);
+		request.setAttribute("roles", roles);
 		dispatcher = request.getRequestDispatcher(VIEW_FORM);
 	}
 
 	private void listar(HttpServletRequest request) {
 
-		ArrayList<Material> materiales = new ArrayList<Material>();
+		ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
 		String searchText=request.getParameter("search");
-		usuario=(Usuario) request.getSession().getAttribute("usuario");
 		if(searchText==null) {
 			searchText="";
 		}
 		
-		materiales = daoMaterial.getAllByUsuario(usuario,searchText);
+		usuarios = daoUsuario.getAll(searchText);
 		
-		request.setAttribute("materiales", materiales);
+		request.setAttribute("usuarios", usuarios);
 		dispatcher = request.getRequestDispatcher(VIEW_INDEX);
 
 	}
@@ -291,19 +286,24 @@ public class MaterialesController extends HttpServlet {
 		} else {
 			nombre = "";
 		}
-
-		if (request.getParameter("precio") != null) {
-			try{
-				precio = Float.parseFloat(request.getParameter("precio"));
+		if (request.getParameter("password") != null) {
+			
+			password = request.getParameter("password");
+			String passConfirm=request.getParameter("pass-confirm");
+			if(!password.equals(passConfirm)){
+				password="Las passwords no coinciden, deben coincidir para poder crear el usuario";
 			}
-			catch( Exception e){
-				precio=PRECIO_EN_LETRA;
-			}
-				
+			
 		} else {
-			precio = 0;
+			password = "";
 		}
-		usuario=(Usuario) request.getSession().getAttribute("usuario");
+		
+		if(request.getParameter("rol")!=null) {
+			rol=daoRol.getById(Integer.parseInt(request.getParameter("rol")));
+		}
+		else {
+			rol=new Rol();
+		}
 	}
 
 }

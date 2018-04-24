@@ -74,9 +74,10 @@ public class UsuarioDAO implements Persistible<Usuario>{
 
 		return usuario;
 	}
-	public void modificarUsuario(int id,String nombre, String password) {
+	public void modificarUsuario(int id,String nombre, String password, int idRol) {
 		
-		String sql = "UPDATE `nidea`.`usuario` SET nombre= ? ,password= ? WHERE id= ? ;";
+		String sql = "UPDATE `nidea`.`usuario` SET nombre= ? ,password= ?, id_rol= ? WHERE id= ? ;";
+		
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				) {
@@ -84,7 +85,8 @@ public class UsuarioDAO implements Persistible<Usuario>{
 			
 			pst.setString(1, nombre);
 			pst.setString(2, password);
-			pst.setInt(3, id);
+			pst.setInt(3, idRol);
+			pst.setInt(4, id);
 			pst.executeUpdate();
 
 			
@@ -136,7 +138,7 @@ public class UsuarioDAO implements Persistible<Usuario>{
 			System.out.println(sql);
 			pst.setString(1, p.getNombre());
 			pst.setString(2, p.getPassword());
-			pst.setInt(2, p.getRol().getId());
+			pst.setInt(3, p.getRol().getId());
 			pst.execute();
 			return true;
 		}
@@ -147,16 +149,51 @@ public class UsuarioDAO implements Persistible<Usuario>{
 	}
 	@Override
 	public ArrayList<Usuario> getAll() {
+	  return getAll("");
+	}
+	
+	/**
+	 *  Lista de usuarios SOLO con id y nombre, sólo para la api.
+	 * @param searchText
+	 * @return ArrayList<Usuario>
+	 */
+	public ArrayList<Usuario> getAll(String searchText) {
 		ArrayList<Usuario> lista = new ArrayList<Usuario>();
-		String sql = "SELECT u.id,u.nombre, u.password, r.id, r.nombre FROM `nidea`.`usuario` as u INNER JOIN `nidea`.`rol` as r on u.id_rol=r.id ORDER BY u.id DESC LIMIT 100;";
+		String sql = "SELECT u.id,u.nombre, u.password, r.id, r.nombre FROM `nidea`.`usuario` as u INNER JOIN `nidea`.`rol` as r on u.id_rol=r.id WHERE u.nombre LIKE '%' ? '%'ORDER BY u.id DESC LIMIT 100;";
 
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				) {
+			pst.setString(1, searchText);
 			try(ResultSet rs = pst.executeQuery();){
 				while (rs.next()) {
 					lista.add(mapper(rs));
 				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+
+		return lista;
+	}
+	public ArrayList<Usuario> getAllByName(String searchText) {
+		ArrayList<Usuario> lista = new ArrayList<Usuario>();
+		String sql = "SELECT u.id,u.nombre FROM `nidea`.`usuario` as u WHERE u.nombre LIKE '%' ? '%'ORDER BY u.nombre DESC LIMIT 20;";
+
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
+			pst.setString(1, searchText);
+			try(ResultSet rs = pst.executeQuery();){
+				Usuario u=null;
+				while (rs.next()) {
+					u=new Usuario();
+					u.setNombre(rs.getString("u.nombre"));
+					u.setId(rs.getInt("u.id"));
+					lista.add(u);
+				}
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

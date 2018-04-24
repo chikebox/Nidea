@@ -20,16 +20,49 @@
     			<label for="precio">Precio:</label>
     			<input type="text" class="form-control" name="precio" value="${ material.getPrecio() }">
   			</div> 
-  			<div class="form-group">
-  				<select class="form-control"  name="usuario">
-  				<c:if test="${ (op==1) }">
-  					<option value="${material.getUsuario().getId()}" selected>${material.getUsuario().getNombre()}</option>
-    			</c:if>
-    			<c:forEach items="${usuarios}" var="usuario">
-            			<option value=${usuario.getId() } ${(usuario.id==material.usuario.id)?"selected":""}>${usuario.getNombre() }</option>
-    			</c:forEach>
-				</select>
-  			</div> 
+  			<div class="input-group">
+  			<c:if test="${ (op==2) }">
+	    	<div class="col">
+		    	<input type="text" value="${material.usuario.nombre}" disabled readonly />
+	    	</div>
+	    	</c:if>
+	  		<div class="col">
+	  	  		<p>Elegir usuario</p>
+	      		<input type="search" id="search" placeholder="Nombre usuario" onkeyup="buscarUsuario(event)">
+	      		<input type="hidden" name="id_usuario" value="${material.usuario.id}">
+	      		<select id="sUsuarios" name="id_usuario_cambio"></select>
+	     	</div> 
+	     	</div>
+  			<script>
+  			function buscarUsuario( event ){
+	  			//console.log('buscarUsuario: click %o', event);
+	  			var nombreBuscar = event.target.value;
+	  			var url = "api/usuario?nombre=" + nombreBuscar;
+	  			
+	  			var options = '';
+	  			var select = document.getElementById('sUsuarios');
+	  			//eliminar options antiguas
+	  			select.innerHTML = "";
+	  			
+	  			//llamada Ajax
+	  			if(nombreBuscar!=""){
+	  				var xhttp = new XMLHttpRequest();
+	  		    	xhttp.onreadystatechange = function() {
+	  		    		//llamada terminada y correcta
+	  		        	if (this.readyState == 4 && this.status == 200) {
+	  		        		var data = JSON.parse(this.responseText);
+	  		            	console.log('retorna datos %o', data);
+	  		            	data.forEach( el => {
+	  		            		options += '<option value="'+ el.id + '">'+el.nombre+'</option>';
+	  		            	});
+	  		            	select.innerHTML = options;
+	  		       		}
+	  		    	};
+	  		   		xhttp.open("GET", url , true);
+	  		    	xhttp.send(); 
+	  			}
+  			}
+  			</script>
   			<c:if test="${ (op==1) }">
   				<input type="hidden" name="op" value="<%=MaterialesController.OP_ANADIR %>">
   				<input type="submit" style="width:100%;"class="btn btn-lg btn-success" value="Crear material">

@@ -233,7 +233,6 @@ public class MaterialesController extends HttpServlet {
 		}
 		usuarios=daoUsuario.getAll();
 		request.setAttribute("op", op);
-		request.setAttribute("usuarios", usuarios);
 		request.setAttribute("material", material);
 		dispatcher = request.getRequestDispatcher(VIEW_FORM);
 	}
@@ -293,8 +292,14 @@ public class MaterialesController extends HttpServlet {
 		} else {
 			precio = 0;
 		}
-		if(request.getParameter("usuario")!=null) {
-			usuario=daoUsuario.getById(Integer.parseInt(request.getParameter("usuario")));
+		if(request.getParameter("id_usuario")!=null) {
+			usuario=daoUsuario.getById(Integer.parseInt(request.getParameter("id_usuario")));
+		}
+		else {
+			usuario=new Usuario();
+		}
+		if(request.getParameter("id_usuario_cambio")!=null) {
+			usuario=daoUsuario.getById(Integer.parseInt(request.getParameter("id_usuario_cambio")));
 		}
 		else {
 			usuario=new Usuario();

@@ -143,13 +143,14 @@ public class MaterialDAO implements Persistible<Material>{
 		} 
 		
 	}
-	public void borrar(int id) {
-		String sql = "DELETE FROM nidea.material WHERE id= ? ;";
+	public void borrar(int idMat, int idUser) {
+		String sql = "DELETE FROM nidea.material WHERE id= ? AND id_usuario= ?;";
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				) {
 
-			pst.setInt(1, id);
+			pst.setInt(1, idMat);
+			pst.setInt(2, idUser);
 			pst.execute();
 
 			
@@ -195,6 +196,24 @@ public class MaterialDAO implements Persistible<Material>{
 		
 
 		return lista;
+	}
+	@Override
+	public void borrar(int id) {
+		String sql = "DELETE FROM nidea.material WHERE id= ?;";
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
+
+			pst.setInt(1, id);
+			
+			pst.execute();
+
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 
