@@ -1,10 +1,9 @@
 package com.ipartek.formacion.nidea.controller;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.HashMap;
 
-import javax.servlet.ServletContext;
+import java.io.IOException;
+
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;

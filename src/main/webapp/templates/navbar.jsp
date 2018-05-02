@@ -17,6 +17,7 @@
       
       <c:if test="${empty usuario }">
       	<a class="btn btn-outline-primary" href="login">Login</a>
+      	<a class="btn btn-primary" href="signup">Registrarse</a>
       </c:if>
       <c:if test="${usuario.getRol().getId()==1 }">
       	

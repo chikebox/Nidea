@@ -4,13 +4,21 @@ public class Usuario {
 	int id;
 	String nombre;
 	String password;
+	String email;
 	Rol rol;
 	public Usuario() {
 		super();
 		id=-1;
 		nombre="Elija un usuario para crear";
 		password="";
+		email="";
 		rol=new Rol();
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	public String getPassword() {
 		return password;

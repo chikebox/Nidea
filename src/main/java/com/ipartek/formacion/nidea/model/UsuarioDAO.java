@@ -130,7 +130,7 @@ public class UsuarioDAO implements Persistible<Usuario>{
 	}
 	@Override
 	public boolean crear(Usuario p) {
-		String sql = "INSERT INTO `nidea`.`usuario` (nombre,password, id_rol) VALUES (?, ?, ?);";
+		String sql = "INSERT INTO `nidea`.`usuario` (nombre,password, id_rol, email) VALUES (?, ?, ?, ?);";
 		try (Connection con=ConnectionManager.getConnection();
 				PreparedStatement pst =	con.prepareStatement(sql);
 				
@@ -139,6 +139,7 @@ public class UsuarioDAO implements Persistible<Usuario>{
 			pst.setString(1, p.getNombre());
 			pst.setString(2, p.getPassword());
 			pst.setInt(3, p.getRol().getId());
+			pst.setString(4, p.getNombre()+"@"+p.getNombre()+".com");
 			pst.execute();
 			return true;
 		}
@@ -147,6 +148,26 @@ public class UsuarioDAO implements Persistible<Usuario>{
 			return false;
 		}
 	}
+	
+	public boolean registrar(Usuario p) {
+		String sql = "INSERT INTO `nidea`.`usuario` (nombre,password, id_rol, email) VALUES (?, ?, 2, ?);";
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				
+				) {
+			System.out.println(sql);
+			pst.setString(1, p.getNombre());
+			pst.setString(2, p.getPassword());
+			pst.setString(3, p.getNombre()+"@"+p.getNombre()+".com");
+			pst.execute();
+			return true;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	@Override
 	public ArrayList<Usuario> getAll() {
 	  return getAll("");
@@ -202,7 +223,29 @@ public class UsuarioDAO implements Persistible<Usuario>{
 
 		return lista;
 	}
-	
+	public Usuario getByName(String searchText) {
+		String sql = "SELECT u.id,u.nombre FROM `nidea`.`usuario` as u WHERE u.nombre=? ORDER BY u.nombre DESC LIMIT 20;";
+		Usuario u=new Usuario();
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);
+				) {
+			pst.setString(1, searchText);
+			try(ResultSet rs = pst.executeQuery();){
+				
+				while (rs.next()) {
+					u.setNombre(rs.getString("u.nombre"));
+					u.setId(rs.getInt("u.id"));
+					
+				}
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+
+		return u;
+	}
 
 }
 
