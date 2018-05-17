@@ -50,6 +50,52 @@ public class UsuarioDAO implements Persistible<Usuario>{
 
 		return usuario;
 	}
+	public Usuario getByNombre(String nombre) {
+
+		ArrayList<Usuario> lista = new ArrayList<Usuario>();
+		Usuario usuario=new Usuario();
+		String sql = "SELECT u.id,u.nombre, u.password, r.id, r.nombre FROM `nidea`.`usuario` as u INNER JOIN `nidea`.`rol` as r on u.id_rol=r.id WHERE u.nombre= ?;";
+		
+
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);) {
+				pst.setString(1, nombre);
+				try(ResultSet rs = pst.executeQuery();){
+					while (rs.next()) {
+						lista.add(mapper(rs));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		if(!lista.isEmpty())usuario=lista.get(0);
+
+		return usuario;
+	}
+	public Usuario getByEmail(String email) {
+
+		ArrayList<Usuario> lista = new ArrayList<Usuario>();
+		Usuario usuario=new Usuario();
+		String sql = "SELECT u.id,u.nombre, u.password, r.id, r.nombre FROM `nidea`.`usuario` as u INNER JOIN `nidea`.`rol` as r on u.id_rol=r.id WHERE u.email= ?;";
+		
+
+		try (Connection con=ConnectionManager.getConnection();
+				PreparedStatement pst =	con.prepareStatement(sql);) {
+				pst.setString(1, email);
+				try(ResultSet rs = pst.executeQuery();){
+					while (rs.next()) {
+						lista.add(mapper(rs));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		if(!lista.isEmpty())usuario=lista.get(0);
+
+		return usuario;
+	}
 	public Usuario getUsuario(String nombre, String password) {
 
 		ArrayList<Usuario> lista = new ArrayList<Usuario>();

@@ -17,7 +17,7 @@ import com.ipartek.formacion.nidea.pojo.Usuario;
 /**
  * Servlet implementation class ApiRegistroController
  */
-@WebServlet("/apit/registro")
+@WebServlet("/api/registro")
 public class ApiRegistroController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static UsuarioDAO daoUsuario=UsuarioDAO.getUsuarioDAO();
@@ -31,10 +31,10 @@ public class ApiRegistroController extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		String nombre= request.getParameter("nombre");
+		
 		if(nombre==null) {
 			nombre="";
 		}
-		
 		Usuario usuario= daoUsuario.getByName(nombre);
 		if(usuario.getId()==-1) {
 			response.setStatus(HttpServletResponse.SC_NO_CONTENT);

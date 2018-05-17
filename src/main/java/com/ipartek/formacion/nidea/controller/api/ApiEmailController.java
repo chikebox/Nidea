@@ -15,13 +15,13 @@ import com.ipartek.formacion.nidea.model.UsuarioDAO;
 import com.ipartek.formacion.nidea.pojo.Usuario;
 
 /**
- * Servlet implementation class ApiUsuarioController
+ * Servlet implementation class ApiEmailController
  */
-@WebServlet("/api/usuario")
-public class ApiUsuarioController extends HttpServlet {
+@WebServlet("/api/email")
+public class ApiEmailController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static UsuarioDAO daoUsuario=UsuarioDAO.getUsuarioDAO();
-       
+	private static UsuarioDAO daoUsuario=UsuarioDAO.getUsuarioDAO();   
+    
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -30,13 +30,13 @@ public class ApiUsuarioController extends HttpServlet {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
-		String nombre= request.getParameter("nombre");
+		String email= request.getParameter("email");
 		
-		if(nombre==null) {
-			nombre="";
+		if(email==null) {
+			email="";
 		}
-		Usuario usuario= daoUsuario.getByName(nombre);
-		if(usuario.getId()==-1) {
+		Usuario usuario= daoUsuario.getByEmail(email);
+		if(usuario.getId() ==-1) {
 			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		}else {
 			//por defecto siempre retorna 200=SC_OK
@@ -46,26 +46,13 @@ public class ApiUsuarioController extends HttpServlet {
 		
 	}
 
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
-	}
-
-	/**
-	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
-	 */
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-	}
-
-	/**
-	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
-	 */
-	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 	}
 
 }

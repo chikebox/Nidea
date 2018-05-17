@@ -10,33 +10,47 @@ function buscarNombre( event ){
 	  			nombre.innerHTML = "";
 	  			
 	  			//llamada Ajax
-	  			if(nombreBuscar!=""){
-	  				var xhttp = new XMLHttpRequest();
-	  		    	xhttp.onreadystatechange = function() {
-	  		    		//llamada terminada y correcta
-	  		        	if (this.readyState == 4 && this.status == 200) {
-	  		        		
-	  		            	nombre.innerHTML = "<p style='color:red;'>Ese usuario ya existe</p>";
+	  			if(nombreBuscar.length>4){
+	  				let promesa= ajax("GET",url);
+	  		        promesa.then(data=>{nombre.innerHTML = "<p style='color:red;'>Ese usuario ya existe</p>";
 	  		            	usuarioDisponible=false;
-	  		            	validar(event);
-	  		            	
-	  		       		}
-	  		        	if (this.readyState == 4 && this.status == 204){
+	  		            	validar(event);})
+	  		        		.catch(data=>{nombre.innerHTML = "<p style='color:green;'>Usuario disponible</p>";
 	  		        		usuarioDisponible=true;
-	  		        		validar(event);
-	  		        	}
-	  		    	};
-	  		   		xhttp.open("GET", url , true);
-	  		    	xhttp.send(); 
+	  		        		validar(event);});
 	  			}
   			}
+function buscarEmail(event){
+		//console.log('buscarUsuario: click %o', event);
+		var emailBuscar = event.target.value;
+		var url = "api/email?email=" + emailBuscar;
+		
+		var email = document.getElementById('confirmar-email');
+		//eliminar options antiguas
+		email.innerHTML = "";
+		
+		//llamada Ajax
+		if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailBuscar))
+		  {
+  				let promesa= ajax("GET",url);
+  		        promesa.then(data=>{email.innerHTML = "<p style='color:red;'>Ese email ya existe</p>";
+  		            	validar(event);})
+  		        		.catch(error=>{email.innerHTML = "<p style='color:green;'>Email disponible</p>";
+  		        		validar(event);});
+		  }
+		else if(email!=""){
+			email.innerHTML = "<p style='color:red;'>Formato de email incorrecto</p>";
+		}
+	}
 function validar(event){
-	var nombre=document.getElementById("username").value;
 	var password=document.getElementById("password").value;
 	var passwordConfirm=document.getElementById("confirmacion").value;
 	var contrasena=document.getElementById('confirmar-contrasena');
 	contrasena.innerHTML="";
-	if(password!=passwordConfirm && password!=""){
+	if(password==""){
+		boton.disabled= true;
+	}
+	else if(password!=passwordConfirm){
 		contrasena.innerHTML = "<p style='color:red;'>Las passwords deben coincidir</p>";
 		boton.disabled= true;
 	}
